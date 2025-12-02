@@ -25,51 +25,8 @@ It demonstrates real-world testing practices including UI testing, API testing, 
 
 ## 📂 Project Structure
 
-├── config/
-│ ├── dev.config.ts
-│ ├── qa.config.ts
-│ ├── prod.config.ts
-│ └── index.ts
-│
-├── src/
-│ ├── fixtures/
-│ │ ├── base.fixture.ts
-│ │ └── api.fixture.ts
-│ │
-│ ├── ui/
-│ │ ├── pages/
-│ │ │ ├── base.page.ts
-│ │ │ ├── login.page.ts
-│ │ │ └── dashboard.page.ts
-│ │ └── tests/
-│ │ └── login.spec.ts
-│ │
-│ ├── api/
-│ │ ├── tests/
-│ │ │ └── users.spec.ts
-│ │ └── helpers/
-│ │ └── apiClient.ts
-│ │
-│ └── utils/
-│ └── logger.ts
-│
-├── performance/
-│ ├── jmeter/
-│ │ ├── login.jmx
-│ │ └── README.md
-│ └── artillery/
-│ ├── load-test.yml
-│ └── README.md
-│
-├── .github/workflows/
-│ ├── ui-tests.yml
-│ ├── api-tests.yml
-│ └── performance.yml
-│
-├── playwright.config.ts
-├── package.json
-├── tsconfig.json
-└── README.md
+<img width="192" height="794" alt="image" src="https://github.com/user-attachments/assets/1b163ce6-3787-4216-a2d1-9fc2a463e7cf" />
+
 
 ## 🧩 Design Decisions
 
