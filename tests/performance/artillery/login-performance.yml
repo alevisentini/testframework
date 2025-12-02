@@ -1,0 +1,17 @@
+config:
+  target: "https://api.example.com"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: Login under load
+    flow:
+      - post:
+          url: "/login"
+          json:
+            username: "user@example.com"
+            password: "12345"

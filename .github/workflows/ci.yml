@@ -1,21 +1,33 @@
-name: CI
+name: Playwright CI + API + Performance
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Node.js
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: 18
+
       - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        run: npm test
+        run: npm ci
+
+      - name: Run Playwright UI/API tests
+        run: npx playwright test
+
+      - name: Run Artillery performance tests
+        run: npx artillery run tests/performance/artillery/login-performance.yml
+
+      - name: Install JMeter
+        run: sudo apt-get install jmeter -y
+
+      - name: Run JMeter tests
+        run: jmeter -n -t tests/performance/jmeter/login.jmx -l results.jtl

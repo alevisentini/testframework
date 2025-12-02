@@ -1,5 +1,5 @@
-import { test, expect } from "../fixtures/apiClient.fixture";
-import { UserSchema, UsersListSchema } from "../schemas/user.schema";
+import { test, expect } from "../../fixtures/apiClient.fixture";
+import { UserSchema, UsersListSchema } from "./schemas/user.schema";
 
 test.describe("Users Business Flow", () => {
 

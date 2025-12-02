@@ -1,4 +1,4 @@
-import { test, expect } from "../fixtures/apiClient.fixture";
+import { test, expect } from "../../fixtures/apiClient.fixture";
 
 test.describe.fixme("Users API", () => {
   test("GET /users returns 200", async ({ apiClient }) => {

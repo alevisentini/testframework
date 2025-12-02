@@ -1,0 +1,4 @@
+export default {
+  BASE_URL: 'https://dev.example.com',
+  API_URL: 'https://api.dev.example.com',
+};
