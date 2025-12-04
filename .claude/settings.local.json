@@ -4,7 +4,10 @@
       "Bash(git push)",
       "Bash(git reset:*)",
       "Bash(git restore:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd RAG configuration and update gitignore\n\n- Add RAG engine, service, and vector DB integration\n- Add AI prompts for API validation and test generation\n- Add docker-compose for local services\n- Add .gitignore to exclude node_modules and .env\n- Remove node_modules from version control\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
