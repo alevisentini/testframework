@@ -25,11 +25,6 @@ The test framework combines traditional automated testing practices with a **Ret
 
 ---
 
-## 📂 Project Structure
-
-<img width="192" height="794" alt="image" src="https://github.com/user-attachments/assets/1b163ce6-3787-4216-a2d1-9fc2a463e7cf" />
-
-
 ## 🧩 Design Decisions
 
 1. **Modular Framework Architecture**  
@@ -63,6 +58,7 @@ The test framework combines traditional automated testing practices with a **Ret
 
 6. **Performance Testing Included**  
     The framework includes performance tests to showcase load testing skills.
+   
     JMeter
     - .jmx test plans included in performance/jmeter/
     - Dataset folder and run instructions
@@ -72,7 +68,7 @@ The test framework combines traditional automated testing practices with a **Ret
     - YAML load-test scenarios in performance/artillery/
     - CLI-ready commands and scenarios
 
-7. **CI/CD with GitHub Actions**   
+8. **CI/CD with GitHub Actions**   
     The framework includes performance tests to showcase load testing skills     
     Workflows included:
     - ui-tests.yml — Playwright UI tests
