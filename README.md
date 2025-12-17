@@ -84,43 +84,6 @@ The test framework combines traditional automated testing practices with a **Ret
     - Pull request integration
     - Matrix runs and parallel execution  
 
-## ▶️ How to Run the Project
-
-Install dependencies
-```bash
-npm install
-```
-
-Run all tests (UI + API)
-```bash
-npx playwright test
-```
-
-Run UI tests only
-```bash
-npx playwright test src/ui/tests
-```
-
-Run API tests only
-```bash
-npx playwright test src/api/tests
-```
-
-Run tests with a specific environment
-```bash
-npx playwright test --config=config/qa.config.ts
-```
-
-Run Artillery load tests
-```bash
-npx artillery run performance/artillery/load-test.yml
-```
-
-Run JMeter plans (JMeter must be installed or run via container)
-```bash
-jmeter -n -t performance/jmeter/login.jmx -l performance/jmeter/results.jtl    
-```
-
 ## 🧠 Retrieval-Augmented Generation (RAG)
 
 ### What is RAG?
@@ -254,6 +217,59 @@ Each RAG component is:
 
 This makes the system suitable not only for experimentation, but also for **enterprise QA environments** where explainability, determinism, and auditability matter.
 
+---
+
+## ▶️ How to Run the Project
+
+Install dependencies
+```bash
+npm install
+```
+
+Run all tests (UI + API)
+```bash
+npx playwright test
+```
+
+Run UI tests only
+```bash
+npx playwright test src/ui/tests
+```
+
+Run API tests only
+```bash
+npx playwright test src/api/tests
+```
+
+Run tests with a specific environment
+```bash
+npx playwright test --config=config/qa.config.ts
+```
+
+Run Artillery load tests
+```bash
+npx artillery run performance/artillery/load-test.yml
+```
+
+Run JMeter plans (JMeter must be installed or run via container)
+```bash
+jmeter -n -t performance/jmeter/login.jmx -l performance/jmeter/results.jtl    
+```
+
+Reset the Chroma db
+```bash
+npx ts-node scripts/rag/reset-chroma.ts
+```
+
+Load the knowledge db
+```bash
+npx ts-node scripts/rag/seed-docs.ts
+```
+
+Query the RAG service
+```bash
+npx ts-node scripts/rag/query.ts "how to test an API"
+```
 ---
 
 ## 📌 Notes
