@@ -3,6 +3,8 @@
 This repository contains a complete **QA Automation Framework** built with **Playwright (TypeScript)**.  
 It demonstrates real-world testing practices including UI testing, API testing, performance testing (Artillery & JMeter), environment configurations, fixtures, POM architecture, and CI/CD pipelines using GitHub Actions.
 
+The test framework combines traditional automated testing practices with a **Retrieval-Augmented Generation (RAG)** implementation. The goal is to demonstrate how modern QA teams can integrate LLM-ready knowledge retrieval into their workflows while keeping the system transparent, testable, and vendor-independent.
+
 ---
 
 ## 🚀 Technologies & Tools
@@ -119,6 +121,141 @@ Run JMeter plans (JMeter must be installed or run via container)
 jmeter -n -t performance/jmeter/login.jmx -l performance/jmeter/results.jtl    
 ```
 
+## 🧠 Retrieval-Augmented Generation (RAG)
+
+### What is RAG?
+
+Retrieval-Augmented Generation (RAG) is an architectural pattern where a Large Language Model (LLM) is augmented with external knowledge retrieved at query time.
+
+Instead of relying only on the model’s pretrained weights, the system:
+
+1. **Retrieves** relevant documents from a vector database using semantic similarity
+2. **Augments** the user prompt with that context
+3. **Generates** an answer grounded in real source material
+
+This approach significantly reduces hallucinations and enables domain-specific reasoning without retraining the model.
+
+---
+
+## 🏗️ RAG Architecture in This Project
+
+The RAG pipeline implemented in this repository consists of the following components:
+
+### 1. Knowledge Base
+
+- Markdown files stored under the `knowledge/` directory
+- Each file represents authoritative, curated QA knowledge
+
+### 2. Chunking Layer
+
+- Documents are split into semantic chunks using a token-aware chunker
+- Chunk overlap preserves contextual continuity across boundaries
+- Each chunk receives a stable, traceable identifier
+
+### 3. Embedding Service
+
+- Embeddings are generated via a local FastAPI service (Uvicorn)
+- Model: `sentence-transformers/all-MiniLM-L6-v2`
+- Embedding dimension: **384**
+
+### 4. Vector Store
+
+- ChromaDB is used to persist embeddings and metadata
+- Stored metadata includes:
+  - Source file
+  - Chunk index
+  - Knowledge source label
+
+### 5. Retrieval Engine
+
+- Queries are embedded using the same model as indexing
+- Top-N most similar chunks are retrieved via cosine distance
+- Results are ranked and returned with distances and metadata
+
+### 6. LLM-Ready Output
+
+- Retrieved chunks are structured for direct prompt injection
+- Can be consumed by OpenAI, Claude, or any compatible LLM
+
+---
+
+## ✅ Benefits of this RAG Approach
+
+- **Grounded responses** based on verified documents
+- **Reduced hallucinations** through explicit context injection
+- **Updatable knowledge** without retraining models
+- **Explainability** via source attribution
+- **Vendor independence** (local embeddings, pluggable LLMs)
+- **QA-aligned design** with traceability and determinism
+
+---
+
+### 🧠 RAG Use Cases in This Project
+
+The implemented RAG pipeline is oriented toward real QA workflows, such as:
+
+- Answering questions like:
+  - *“How should we test this API?”*
+  - *“What are our Playwright best practices?”*
+  - *“What makes a good acceptance criterion?”*
+- Assisting new team members with project-specific standards
+- Acting as an internal QA knowledge assistant
+- Exploring future integrations (Slack bot, CLI assistant, PR review helper)
+
+---
+
+## 🌍 Real-World RAG Use Cases
+
+This implementation mirrors how RAG is applied in production environments:
+
+### Internal Knowledge Assistants
+- Engineering handbooks
+- QA standards and testing strategies
+- Playwright and automation best practices
+
+### Customer Support Copilots
+- Product documentation search
+- Guided troubleshooting
+
+### Compliance and Legal Systems
+- Regulatory text interpretation
+- Policy search with auditable sources
+
+### QA & Testing Intelligence
+- Querying acceptance criteria
+- Test design assistance
+- Risk-based testing guidance
+
+### Developer Enablement
+- Architecture decision records (ADRs)
+- Coding standards and conventions
+
+---
+
+## Typical RAG Flow
+
+1. User submits a natural language question
+2. The query is embedded using the same embedding model
+3. ChromaDB retrieves the most similar chunks
+4. Retrieved content is passed to an LLM as trusted context
+5. The LLM generates a grounded, context-aware answer
+
+---
+
+## 🧩 Design Philosophy
+
+This project intentionally avoids black-box abstractions.
+
+Each RAG component is:
+
+- Explicit
+- Replaceable
+- Independently testable
+
+This makes the system suitable not only for experimentation, but also for **enterprise QA environments** where explainability, determinism, and auditability matter.
+
+---
+
 ## 📌 Notes
 
 - Meter .jmx files are XML and editors may show the warning:
@@ -130,7 +267,7 @@ jmeter -n -t performance/jmeter/login.jmx -l performance/jmeter/results.jtl
 
 ## 📘 Purpose of This Repository
 
-This project serves as a QA Engineer portfolio, demonstrating skills in:
+This repository serves as both a **practical QA tool** and a **learning reference**. It also serves as a QA Engineer portfolio, demonstrating skills in:
 
 - Automation framework design
 
@@ -143,3 +280,5 @@ This project serves as a QA Engineer portfolio, demonstrating skills in:
 - CI/CD integration and reporting
 
 - Engineering judgement and QA strategy
+
+- RAG-based systems
