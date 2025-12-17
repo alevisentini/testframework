@@ -1,33 +1,46 @@
-import { ChromaClientWrapper } from "../../ai/vectordb/chroma.client";
-import { Embedder } from "../../ai/embeddings/embedder";
+import fs from "fs";
+import path from "path";
 import { RagEngine } from "../../ai/rag/rag.engine";
-import * as fs from "fs";
-import * as path from "path";
+import { chunkDocument } from "../../ai/rag/chunker";
+import { UvicornEmbedder } from "../../ai/embeddings/uvicorn.embedder";
+
+const KNOWLEDGE_DIR = path.resolve("knowledge");
 
 async function main() {
-  const embedder = new Embedder();
-  const chroma = new ChromaClientWrapper("qa-knowledge-base");
-  await chroma.init();
+  const engine = new RagEngine(
+    "qa-knowledge-base",
+    new UvicornEmbedder("http://127.0.0.1:8001")
+  );
 
-  const engine = new RagEngine("knowledge_base");
   await engine.init();
 
-  // Ruta donde guardarás documentos de conocimiento
-  const docsPath = path.join(__dirname, "../../knowledge");
+  const files = fs
+    .readdirSync(KNOWLEDGE_DIR)
+    .filter(f => f.endsWith(".md"));
 
-  const files = fs.readdirSync(docsPath);
   for (const file of files) {
-    const fullPath = path.join(docsPath, file);
-    const content = fs.readFileSync(fullPath, "utf8");
+    const fullPath = path.join(KNOWLEDGE_DIR, file);
+    const content = fs.readFileSync(fullPath, "utf-8");
 
-    await engine.addDocument({
-      id: file,
-      content,
-      metadata: { source: "knowledge-base" },
-    });
+    const chunks = chunkDocument(file, content);
 
-    console.log(`📌 Indexed: ${file}`);
+    for (const chunk of chunks) {
+      await engine.addDocument({
+        id: chunk.id,
+        content: chunk.content,
+        metadata: {
+          source: "knowledge",
+          file,
+          chunkIndex: chunk.index,
+        },
+      });
+    }
+
+    console.log(`📌 Indexed ${file} (${chunks.length} chunks)`);
   }
 }
 
-main();
+main().catch(err => {
+  console.error("❌ Seeding failed:", err);
+  process.exit(1);
+});

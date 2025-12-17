@@ -1,7 +1,7 @@
 import OpenAI from "openai";
-import { EmbeddingVector } from "../rag/rag.types";
+import { IEmbedder, EmbeddingVector } from "./embedder.interface";
 
-export class Embedder {
+export class OpenAIEmbedder implements IEmbedder {
   private client: OpenAI;
 
   constructor() {
@@ -11,13 +11,9 @@ export class Embedder {
 
     this.client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
-      timeout: 60000, // 60 segundos
     });
   }
 
-  /**
-   * Generates an embedding vector from the given text.
-   */
   async embed(text: string): Promise<EmbeddingVector> {
     const response = await this.client.embeddings.create({
       model: "text-embedding-3-small",

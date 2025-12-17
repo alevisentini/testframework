@@ -11,7 +11,6 @@ export class ChromaClientWrapper {
   async init() {
     this.collection = await this.client.getOrCreateCollection({
       name: this.collectionName,
-      embeddingFunction: undefined,
     });
   }
 

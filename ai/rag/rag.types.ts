@@ -6,3 +6,9 @@ export interface RetrievedDocument {
   score: number | null;
   metadata?: Record<string, any>;
 }
+
+export interface RagDocument {
+  id: string;
+  content: string;
+  metadata?: Record<string, any>;
+}
