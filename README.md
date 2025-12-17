@@ -58,6 +58,7 @@ The test framework combines traditional automated testing practices with a **Ret
 
 6. **Performance Testing Included**  
     The framework includes performance tests to showcase load testing skills.
+   
     JMeter
     - .jmx test plans included in performance/jmeter/
     - Dataset folder and run instructions
@@ -67,7 +68,7 @@ The test framework combines traditional automated testing practices with a **Ret
     - YAML load-test scenarios in performance/artillery/
     - CLI-ready commands and scenarios
 
-7. **CI/CD with GitHub Actions**   
+8. **CI/CD with GitHub Actions**   
     The framework includes performance tests to showcase load testing skills     
     Workflows included:
     - ui-tests.yml — Playwright UI tests
