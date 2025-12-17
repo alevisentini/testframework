@@ -25,11 +25,6 @@ The test framework combines traditional automated testing practices with a **Ret
 
 ---
 
-## 📂 Project Structure
-
-<img width="192" height="794" alt="image" src="https://github.com/user-attachments/assets/1b163ce6-3787-4216-a2d1-9fc2a463e7cf" />
-
-
 ## 🧩 Design Decisions
 
 1. **Modular Framework Architecture**  
