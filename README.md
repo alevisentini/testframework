@@ -1,4 +1,4 @@
-# QA Automation Portfolio — Playwright + TypeScript + API + Performance
+# QA Automation Portfolio — Playwright + TypeScript + API + Performance + RAG
 
 This repository contains a complete **QA Automation Framework** built with **Playwright (TypeScript)**.  
 It demonstrates real-world testing practices including UI testing, API testing, performance testing (Artillery & JMeter), environment configurations, fixtures, POM architecture, and CI/CD pipelines using GitHub Actions.
