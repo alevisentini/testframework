@@ -4,70 +4,83 @@ export interface Chunk {
   id: string;
   content: string;
   index: number;
+  metadata: {
+    file: string;
+    section: string;
+    chunkIndex: number;
+    type: "conceptual";
+  };
 }
 
 /**
- * Aproximación simple de tokens:
- * 1 token ≈ 4 caracteres (suficiente para embeddings)
+ * Aproximación simple:
+ * 1 token ≈ 4 caracteres
  */
 function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4);
 }
 
+interface ChunkOptions {
+  maxTokens?: number;
+}
+
 /**
- * Divide un documento en chunks semánticos
+ * Chunker conceptual basado en secciones Markdown
  */
-export function chunkDocument(
-  docId: string,
-  text: string,
-  options?: {
-    maxTokens?: number;
-    overlapTokens?: number;
-  }
+export function chunkDocumentConceptual(
+  fileName: string,
+  rawText: string,
+  options?: ChunkOptions
 ): Chunk[] {
-  const maxTokens = options?.maxTokens ?? 400;
-  const overlapTokens = options?.overlapTokens ?? 60;
+  const maxTokens = options?.maxTokens ?? 350;
 
-  const paragraphs = text
-    .split(/\n\s*\n/)
-    .map(p => p.trim())
-    .filter(Boolean);
-
+  const lines = rawText.split("\n");
   const chunks: Chunk[] = [];
-  let currentChunk = "";
-  let currentTokens = 0;
+
+  let currentSection = "Introduction";
+  let buffer: string[] = [];
   let chunkIndex = 0;
 
-  for (const paragraph of paragraphs) {
-    const pTokens = estimateTokens(paragraph);
+  function flushBuffer() {
+    if (buffer.length === 0) return;
 
-    if (currentTokens + pTokens > maxTokens) {
-      chunks.push({
-        id: `${docId}::chunk-${chunkIndex}`,
-        content: currentChunk.trim(),
-        index: chunkIndex
-      });
+    const content = buffer.join("\n").trim();
+    if (!content) return;
 
-      chunkIndex++;
+    chunks.push({
+      id: `${fileName}::${currentSection}::${chunkIndex}`,
+      index: chunkIndex,
+      content: `# ${fileName}\n## ${currentSection}\n\n${content}`,
+      metadata: {
+        file: fileName,
+        section: currentSection,
+        chunkIndex,
+        type: "conceptual",
+      },
+    });
 
-      // overlap
-      const overlapChars = overlapTokens * 4;
-      currentChunk = currentChunk.slice(-overlapChars);
-      currentTokens = estimateTokens(currentChunk);
+    chunkIndex++;
+    buffer = [];
+  }
+
+  for (const line of lines) {
+    const sectionMatch = line.match(/^##+\s+(.*)/);
+
+    if (sectionMatch) {
+      flushBuffer();
+      currentSection = sectionMatch[1].trim();
+      continue;
     }
 
-    //currentChunk += "\n\n" + paragraph;
-    currentChunk = currentChunk ? currentChunk + "\n\n" + paragraph : paragraph;
-    currentTokens += pTokens;
+    buffer.push(line);
+
+    const tokenCount = estimateTokens(buffer.join("\n"));
+    if (tokenCount >= maxTokens) {
+      flushBuffer();
+    }
   }
 
-  if (currentChunk.trim()) {
-    chunks.push({
-      id: `${docId}::chunk-${chunkIndex}`,
-      content: currentChunk.trim(),
-      index: chunkIndex
-    });
-  }
+  flushBuffer();
 
   return chunks;
 }

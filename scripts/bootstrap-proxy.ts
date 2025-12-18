@@ -1,9 +1,12 @@
 import { setGlobalDispatcher, ProxyAgent } from "undici";
 
-if (process.env.HTTPS_PROXY) {
-  setGlobalDispatcher(
-    new ProxyAgent(process.env.HTTPS_PROXY)
-  );
+// const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+const proxyUrl = process.env.HTTP_PROXY;
 
-  console.log("🌐 Global HTTPS proxy configured:", process.env.HTTPS_PROXY);
+if (!proxyUrl) {
+  throw new Error("HTTPS_PROXY or HTTP_PROXY is not defined");
 }
+
+setGlobalDispatcher(new ProxyAgent(proxyUrl));
+
+console.log("🌐 Undici global proxy configured:", proxyUrl);
