@@ -1,25 +1,18 @@
 import { ChromaClient, Collection } from "chromadb";
 import { IEmbedder } from "../embeddings/embedder.interface";
-import { RagDocument } from "./rag.types";
+import {
+  RagDocument,
+  RagFallbackResponse,
+  RagQueryResult,
+} from "./rag.types";
 
-/**
- * Default distance threshold.
- * Lower = stricter relevance.
- * This value works well for MiniLM / OpenAI-style embeddings.
- */
 const DEFAULT_THRESHOLD = 1.2;
 
-export interface RagFallbackResponse {
-  answer: string;
-  sources: [];
-  insufficientContext: true;
-}
-
 export const FALLBACK_RESPONSE: RagFallbackResponse = {
+  insufficientContext: true,
   answer:
     "I don’t have enough relevant information in my QA knowledge base to answer this reliably.",
   sources: [],
-  insufficientContext: true,
 };
 
 export class RagEngine {
@@ -33,18 +26,12 @@ export class RagEngine {
     this.client = new ChromaClient();
   }
 
-  /**
-   * Must be called before any add/query operation
-   */
   async init(): Promise<void> {
     this.collection = await this.client.getOrCreateCollection({
       name: this.collectionName,
     });
   }
 
-  /**
-   * Index a single document (or chunk)
-   */
   async addDocument(doc: RagDocument): Promise<void> {
     if (!this.collection) {
       throw new Error("RagEngine not initialized. Call init() first.");
@@ -60,16 +47,10 @@ export class RagEngine {
     });
   }
 
-  /**
-   * Query the knowledge base using semantic search
-   */
   async query(
     text: string,
-    options?: {
-      topK?: number;
-      threshold?: number;
-    }
-  ) {
+    options?: { topK?: number; threshold?: number }
+  ): Promise<RagQueryResult> {
     if (!this.collection) {
       throw new Error("RagEngine not initialized. Call init() first.");
     }
@@ -85,10 +66,8 @@ export class RagEngine {
       include: ["documents", "metadatas", "distances"],
     });
 
-    const distances = results.distances?.[0] ?? [];
-
-    // Chroma distances can be (number | null)[]
-    const numericDistances = distances.filter(
+    const rawDistances = results.distances?.[0] ?? [];
+    const numericDistances = rawDistances.filter(
       (d): d is number => typeof d === "number"
     );
 
@@ -100,19 +79,33 @@ export class RagEngine {
 
     if (minDistance > threshold) {
       return {
-        insufficientContext: true,
-        answer: FALLBACK_RESPONSE.answer,
-        sources: [],
+        ...FALLBACK_RESPONSE,
         minDistance,
-        threshold: DEFAULT_THRESHOLD,
+        threshold,
       };
     }
 
+    // ✅ NORMALIZATION (the important part)
+    const documents = (results.documents ?? []).map(row =>
+      row.filter((d): d is string => typeof d === "string")
+    );
+
+    const metadatas = (results.metadatas ?? []).map(row =>
+      row.filter(
+        (m): m is Record<string, any> =>
+          typeof m === "object" && m !== null
+      )
+    );
+
+    const distances = (results.distances ?? []).map(row =>
+      row.filter((d): d is number => typeof d === "number")
+    );
+
     return {
       insufficientContext: false,
-      documents: results.documents!,
-      metadatas: results.metadatas!,
-      distances: results.distances!,
+      documents,
+      metadatas,
+      distances,
     };
   }
 }

@@ -14,14 +14,10 @@ async function main() {
 
   await engine.init();
 
-  const files = fs
-    .readdirSync(KNOWLEDGE_DIR)
-    .filter(f => f.endsWith(".md"));
+  const files = fs.readdirSync(KNOWLEDGE_DIR).filter(f => f.endsWith(".md"));
 
   for (const file of files) {
-    const fullPath = path.join(KNOWLEDGE_DIR, file);
-    const content = fs.readFileSync(fullPath, "utf-8");
-
+    const content = fs.readFileSync(path.join(KNOWLEDGE_DIR, file), "utf-8");
     const chunks = chunkDocument(file, content);
 
     for (const chunk of chunks) {
@@ -32,6 +28,7 @@ async function main() {
           source: "knowledge",
           file,
           chunkIndex: chunk.index,
+          contentType: chunk.contentType, 
         },
       });
     }
@@ -40,7 +37,4 @@ async function main() {
   }
 }
 
-main().catch(err => {
-  console.error("❌ Seeding failed:", err);
-  process.exit(1);
-});
+main().catch(console.error);

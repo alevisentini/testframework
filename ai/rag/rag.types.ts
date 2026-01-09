@@ -1,5 +1,3 @@
-// ai/rag/rag.types.ts
-
 export interface RagDocument {
   id: string;
   content: string;
@@ -10,18 +8,15 @@ export interface RagFallbackResponse {
   insufficientContext: true;
   answer: string;
   sources: [];
-  minDistance: number;
-  threshold: number;
+  minDistance?: number;
+  threshold?: number;
 }
 
 export interface RagSuccessResponse {
-  insufficientContext?: false;
+  insufficientContext: false;
   documents: string[][];
   metadatas: Record<string, any>[][];
   distances: number[][];
 }
 
 export type RagQueryResult = RagFallbackResponse | RagSuccessResponse;
-
-
-

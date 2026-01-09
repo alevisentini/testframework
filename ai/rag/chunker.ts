@@ -1,86 +1,84 @@
-// ai/rag/chunker.ts
+/**
+ * Supported semantic content types.
+ */
+export type RagContentType =
+  | "conceptual"
+  | "diagnostic"
+  | "procedural"
+  | "checklist"
+  | "anti-pattern";
 
-export interface Chunk {
+/**
+ * Chunk unit used across the system.
+ */
+export interface RagChunk {
   id: string;
-  content: string;
   index: number;
-  metadata: {
-    file: string;
-    section: string;
-    chunkIndex: number;
-    type: "conceptual";
-  };
+  content: string;
+  contentType: RagContentType;
 }
 
-/**
- * Aproximación simple:
- * 1 token ≈ 4 caracteres
- */
-function estimateTokens(text: string): number {
-  return Math.ceil(text.length / 4);
-}
+export class Chunker {
+  chunkDocument(file: string, raw: string): RagChunk[] {
+    const sections = this.parseSections(raw);
+    const chunks: RagChunk[] = [];
+    let index = 0;
 
-interface ChunkOptions {
-  maxTokens?: number;
-}
+    for (const section of sections) {
+      const type = this.detectContentType(section.heading, section.body);
 
-/**
- * Chunker conceptual basado en secciones Markdown
- */
-export function chunkDocumentConceptual(
-  fileName: string,
-  rawText: string,
-  options?: ChunkOptions
-): Chunk[] {
-  const maxTokens = options?.maxTokens ?? 350;
+      chunks.push({
+        id: `${file}::chunk-${index}`,
+        index,
+        content: `${section.heading}\n\n${section.body}`.trim(),
+        contentType: type,
+      });
 
-  const lines = rawText.split("\n");
-  const chunks: Chunk[] = [];
-
-  let currentSection = "Introduction";
-  let buffer: string[] = [];
-  let chunkIndex = 0;
-
-  function flushBuffer() {
-    if (buffer.length === 0) return;
-
-    const content = buffer.join("\n").trim();
-    if (!content) return;
-
-    chunks.push({
-      id: `${fileName}::${currentSection}::${chunkIndex}`,
-      index: chunkIndex,
-      content: `# ${fileName}\n## ${currentSection}\n\n${content}`,
-      metadata: {
-        file: fileName,
-        section: currentSection,
-        chunkIndex,
-        type: "conceptual",
-      },
-    });
-
-    chunkIndex++;
-    buffer = [];
-  }
-
-  for (const line of lines) {
-    const sectionMatch = line.match(/^##+\s+(.*)/);
-
-    if (sectionMatch) {
-      flushBuffer();
-      currentSection = sectionMatch[1].trim();
-      continue;
+      index++;
     }
 
-    buffer.push(line);
-
-    const tokenCount = estimateTokens(buffer.join("\n"));
-    if (tokenCount >= maxTokens) {
-      flushBuffer();
-    }
+    return chunks;
   }
 
-  flushBuffer();
+  private parseSections(markdown: string) {
+    const lines = markdown.split("\n");
+    const sections: { heading: string; body: string[] }[] = [];
+    let current: { heading: string; body: string[] } | null = null;
 
-  return chunks;
+    for (const line of lines) {
+      if (line.startsWith("## ")) {
+        if (current) sections.push(current);
+        current = { heading: line.replace(/^## /, ""), body: [] };
+        continue;
+      }
+      if (current) current.body.push(line);
+    }
+
+    if (current) sections.push(current);
+
+    return sections.map(s => ({
+      heading: s.heading,
+      body: s.body.join("\n").trim(),
+    }));
+  }
+
+  private detectContentType(
+    heading: string,
+    body: string
+  ): RagContentType {
+    const h = heading.toLowerCase();
+
+    if (h.includes("mistake")) return "anti-pattern";
+    if (h.includes("diagnos") || h.includes("why")) return "diagnostic";
+    if (h.includes("how") || h.includes("recommend")) return "procedural";
+    if (body.split("\n").filter(l => l.trim().startsWith("-")).length >= 3) {
+      return "checklist";
+    }
+
+    return "conceptual";
+  }
+}
+
+export function chunkDocument(file: string, content: string): RagChunk[] {
+  return new Chunker().chunkDocument(file, content);
 }

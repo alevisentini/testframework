@@ -215,6 +215,88 @@ This makes the system suitable not only for experimentation, but also for **ente
 
 ---
 
+### 📌 Current RAG Implementation Status (RAG-Only Mode)
+
+At this stage, the RAG pipeline implemented in this repository operates in a **RAG-only mode**, without relying on an LLM for answer generation.
+
+This is an intentional design decision aimed at:
+
+- Ensuring deterministic, explainable behavior
+- Validating chunking, retrieval, and ranking quality independently
+- Avoiding hallucinations by design
+- Making the system fully testable and debuggable
+
+The system produces **human-readable answers directly from retrieved knowledge**, using structured post-processing instead of generative inference.
+
+---
+
+### 🔍 What Happens When a Query Is Executed
+
+1. The user submits a natural language question via CLI.
+2. The query is embedded using the same embedding model used during indexing.
+3. ChromaDB retrieves the top-K most relevant chunks based on semantic similarity.
+4. Retrieved chunks are:
+   - Ordered by semantic priority (conceptual → diagnostic → anti-pattern → procedural → checklist)
+   - Deduplicated and grouped
+5. A **human-readable response** is composed directly from the retrieved content.
+
+No generative model is required for this step.
+
+---
+
+### 🧩 Human-Readable Post-Processing
+
+Instead of sending raw chunks to the user, the system applies a **deterministic post-processing layer** that:
+
+- Preserves semantic ordering
+- Groups related knowledge
+- Eliminates repetition
+- Produces answers that read like senior QA guidance
+
+This post-processing layer acts as a **transparent alternative to LLM summarization**, making the system suitable for environments where explainability and auditability are critical.
+
+---
+
+### 🛡️ Why RAG-Only First?
+
+Operating in RAG-only mode provides several advantages:
+
+- Clear visibility into retrieval quality
+- Immediate feedback on chunking strategy
+- Easier debugging of relevance issues
+- Safe-by-default behavior (no hallucinations)
+- A strong foundation before enabling LLM reasoning
+
+Once retrieval quality is validated, an LLM can be layered on top **without changing the core architecture**.
+
+---
+
+### 🔌 LLM Integration (Optional and Pluggable)
+
+The architecture is designed so that an LLM can be enabled later:
+
+- Claude, OpenAI, or any compatible provider
+- Fully optional via configuration
+- Cleanly separated from retrieval logic
+
+This ensures that **knowledge retrieval remains the source of truth**, and generation becomes an enhancement—not a dependency.
+
+---
+
+### 🧪 QA-Driven Design Philosophy
+
+The RAG implementation follows QA principles:
+
+- Deterministic outputs
+- Traceable sources
+- Minimal magic
+- Clear failure modes
+- Observable behavior at every stage
+
+This makes the system suitable for **enterprise QA environments**, internal tooling, and regulated domains.
+
+---
+
 ## ▶️ How to Run the Project
 
 Install dependencies

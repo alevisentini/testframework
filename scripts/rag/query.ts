@@ -10,7 +10,6 @@ async function main() {
     process.exit(1);
   }
 
-  // 1) RAG engine with SAME embedder used at indexing time
   const rag = new RagEngine(
     "qa-knowledge-base",
     new UvicornEmbedder("http://127.0.0.1:8001")
@@ -18,17 +17,11 @@ async function main() {
 
   await rag.init();
 
-  // 2) Assistant (LLM disabled by design for now)
   const assistant = new QaAssistantService(rag);
-
-  // 3) Ask
   const answer = await assistant.answer(question);
 
   console.log("\n--- ANSWER ---\n");
   console.log(answer);
 }
 
-main().catch(err => {
-  console.error("❌ Query failed:", err);
-  process.exit(1);
-});
+main().catch(console.error);
